@@ -198,7 +198,7 @@ function ensureCoach(){if(!state.coach)state.coach={version:1,days:{},positions:
 function coachStep(track,index){const route=coachRoutes[track];return index<route.length?route[index]:coachAfter[track][(index-route.length)%coachAfter[track].length]}
 function coachTaskItem(t,reason){return {kind:'task',id:t.id,reason}}
 function coachTask(i){return i.kind==='task'?state.tasks.find(t=>t.id===i.id):null}
-function coachDone(i,d){if(i.kind==='task')return coachTask(i)?.status==='done';if(i.kind==='english')return (habit(d).englishMinutes||0)>=60;if(i.kind==='sport')return habit(d).workout;if(i.kind==='reading')return habit(d).reading>=20;return !!state.coach.completed[d+':review']}
+function coachDone(i,d){if(i.kind==='task'){const t=coachTask(i);return t?.status==='done'&&(!t.completedAt||t.completedAt<=d);}if(i.kind==='english')return (habit(d).englishMinutes||0)>=60;if(i.kind==='sport')return habit(d).workout;if(i.kind==='reading')return habit(d).reading>=20;return !!state.coach.completed[d+':review']}
 function coachClosed(i,d){const t=coachTask(i);return coachDone(i,d)||(i.kind==='task'&&(state.coach.snoozed[d+':'+i.id]||t?.paused||t?.archived||(t?.date&&t.date>d)))}
 function syncCoachSteps(){const c=ensureCoach();for(const track of ['ai','saas']){let guard=0;while(guard++<100&&state.tasks.some(t=>t.coachTrack===track&&t.coachStep===c.positions[track]&&t.status==='done'))c.positions[track]++}}
 function nextCoachTask(track,d){
